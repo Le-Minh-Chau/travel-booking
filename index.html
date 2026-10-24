@@ -1,0 +1,85 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel Booking - Khám phá Việt Nam</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 0 20px;
+      background: #f5f7fa;
+      color: #243247;
+    }
+    h1 { color: #087f8c; }
+    #tours {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .tour {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 12px #00000010;
+    }
+    .price { color: #087f8c; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Khám phá Việt Nam</h1>
+  <p>Chọn hành trình phù hợp cho chuyến đi tiếp theo của bạn.</p>
+  <div id="tours">Đang tải danh sách tour...</div>
+
+  <script>
+    async function loadTours() {
+      const container = document.getElementById("tours");
+
+      try {
+        const response = await fetch("/api/tours");
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          throw new Error("Không thể tải tour");
+        }
+
+        if (result.data.length === 0) {
+          container.textContent = "Hiện chưa có tour nào.";
+          return;
+        }
+
+        container.replaceChildren();
+
+        result.data.forEach(tour => {
+          const card = document.createElement("article");
+          card.className = "tour";
+
+          const title = document.createElement("h2");
+          title.textContent = tour.name;
+
+          const destination = document.createElement("p");
+          destination.textContent = "Điểm đến: " + tour.destination;
+
+          const duration = document.createElement("p");
+          duration.textContent = "Thời lượng: " + tour.duration_days + " ngày";
+
+          const price = document.createElement("p");
+          price.className = "price";
+          price.textContent = Number(tour.price).toLocaleString("vi-VN") + " VNĐ";
+
+          card.append(title, destination, duration, price);
+          container.appendChild(card);
+        });
+      } catch (error) {
+        container.textContent =
+          "Chưa tải được dữ liệu. Vui lòng kiểm tra API và cấu hình D1.";
+      }
+    }
+
+    loadTours();
+  </script>
+</body>
+</html>
